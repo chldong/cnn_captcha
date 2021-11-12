@@ -12,7 +12,8 @@ from io import BytesIO
 import time
 import json
 import os
-
+from PIL import Image
+import base64,os
 
 def recognize_captcha(remote_url, rec_times, save_path, image_suffix):
     image_file_name = 'captcha.{}'.format(image_suffix)
@@ -26,6 +27,7 @@ def recognize_captcha(remote_url, rec_times, save_path, image_suffix):
         while True:
             try:
                 response = requests.request("GET", remote_url, headers=headers, timeout=6)
+
                 if response.text:
                     break
                 else:
@@ -33,10 +35,21 @@ def recognize_captcha(remote_url, rec_times, save_path, image_suffix):
             except Exception as ee:
                 print(ee)
 
+        # 转换
+        text = response.text
+        # print(text)
+        jsonobj = json.loads(text)
+        imgt = jsonobj['Img']
+        # print(imgt)
+        img=base64.b64decode(imgt)
+        # imgs = open("captcha.jpeg","wb")
+        # imgs.write(img)
+        # imgs.close()
+
         # 识别
         s = time.time()
-        url = "http://127.0.0.1:6000/b"
-        files = {'image_file': (image_file_name, BytesIO(response.content), 'application')}
+        url = "http://192.168.1.12/api"
+        files = {'image_file': (image_file_name, BytesIO(img), 'application')}
         r = requests.post(url=url, files=files)
         e = time.time()
 
@@ -44,13 +57,13 @@ def recognize_captcha(remote_url, rec_times, save_path, image_suffix):
         print("接口响应: {}".format(r.text))
         predict_text = json.loads(r.text)["value"]
         now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        print("【{}】 index:{} 耗时：{}ms 预测结果：{}".format(now_time, index, int((e-s)*1000), predict_text))
+        print("【{}】 次数:{} 耗时：{}ms 预测结果：{}".format(now_time, index, int((e-s)*1000), predict_text))
 
         # 保存文件
         img_name = "{}_{}.{}".format(predict_text, str(time.time()).replace(".", ""), image_suffix)
         path = os.path.join(save_path, img_name)
         with open(path, "wb") as f:
-            f.write(response.content)
+            f.write(img)
         print("============== end ==============")
 
 
@@ -62,7 +75,7 @@ def main():
     save_path = sample_conf["online_image_dir"]  # 下载图片保存的地址
     remote_url = sample_conf["remote_url"]  # 网络验证码地址
     image_suffix = sample_conf["image_suffix"]  # 文件后缀
-    rec_times = 1
+    rec_times = 9
     recognize_captcha(remote_url, rec_times, save_path, image_suffix)
 
 

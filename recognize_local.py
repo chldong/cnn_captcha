@@ -22,7 +22,7 @@ def recognize_captcha(test_path, save_path, image_suffix):
 
     # 识别
     s = time.time()
-    url = "http://127.0.0.1:6000/b"
+    url = "http://192.168.1.12/api"
     files = {'image_file': (image_file_name, BytesIO(content), 'application')}
     r = requests.post(url=url, files=files)
     e = time.time()
@@ -46,7 +46,7 @@ def main():
         sample_conf = json.load(f)
 
     # 配置相关参数
-    test_path = "sample/test/0401_15440848576253345.png"  # 测试识别的图片路径
+    test_path = "sample/test/1217_1636427484.jpeg"  # 测试识别的图片路径
     save_path = sample_conf["local_image_dir"]  # 保存的地址
     image_suffix = sample_conf["image_suffix"]  # 文件后缀
     recognize_captcha(test_path, save_path, image_suffix)

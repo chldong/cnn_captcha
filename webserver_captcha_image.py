@@ -42,6 +42,7 @@ def gen_special_img():
         text += random.choice(characters)
     print(text)
     # 生成img文件
+    
     generator = ImageCaptcha(width=width, height=height)  # 指定大小
     img = generator.generate_image(text)  # 生成图片
     imgByteArr = io.BytesIO()

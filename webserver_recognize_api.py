@@ -16,9 +16,9 @@ import time
 from flask import Flask, request, jsonify, Response
 from PIL import Image
 
-# 默认使用CPU
+# 默认使用CPU(-1)
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 with open("conf/sample_config.json", "r") as f:
     sample_conf = json.load(f)
@@ -54,8 +54,9 @@ def response_headers(content):
     return resp
 
 
-@app.route('/b', methods=['POST'])
+@app.route('/api', methods=['POST'])
 def up_image():
+    # print(request.files)
     if request.method == 'POST' and request.files.get('image_file'):
         timec = str(time.time()).replace(".", "")
         file = request.files.get('image_file')
@@ -90,5 +91,5 @@ if __name__ == '__main__':
     app.run(
         host='0.0.0.0',
         port=6000,
-        debug=True
+        debug=False
     )
